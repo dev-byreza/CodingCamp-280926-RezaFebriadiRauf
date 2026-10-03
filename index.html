@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#12735d" />
+    <meta
+      name="description"
+      content="Catat pengeluaran harian, lihat distribusi kategori, dan kelola batas anggaran. Data tersimpan di browser Anda."
+    />
+    <title>Expense & Budget Visualizer — Reza Febriadi Rauf</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2312735d'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='40' fill='white'%3ER%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/script.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Ruang Uang, halaman utama"
+          ><span class="brand-mark" aria-hidden="true">R</span
+          ><span>ruang<span class="brand-light">uang.</span></span></a
+        >
+        <div class="top-actions">
+          <span class="local-badge"
+            ><span aria-hidden="true">●</span> Tersimpan di perangkat</span
+          ><button
+            id="theme-toggle"
+            class="button-icon"
+            type="button"
+            aria-label="Aktifkan mode gelap"
+            aria-pressed="false"
+          >
+            ◐
+          </button>
+        </div>
+      </header>
+      <main>
+        <div class="intro">
+          <div>
+            <p class="eyebrow">EXPENSE & BUDGET VISUALIZER</p>
+            <h1>Kenali ke mana<br />uangmu pergi<span>.</span></h1>
+            <p class="subtitle">
+              Catatan kecil hari ini. Keuangan lebih terarah besok.
+            </p>
+          </div>
+          <div class="intro-note">
+            <span aria-hidden="true">↗</span>
+            <p>Mulai dari satu transaksi.<br />Bangun kebiasaan yang baik.</p>
+          </div>
+        </div>
+        <section class="overview" aria-label="Ringkasan pengeluaran">
+          <div class="balance-card">
+            <div class="card-heading">
+              <span>Total pengeluaran</span
+              ><span class="mini-label">SEMUA TRANSAKSI</span>
+            </div>
+            <p id="total-balance" class="total-amount">Rp0</p>
+            <div class="balance-footer">
+              <span id="transaction-count">0 transaksi tercatat</span
+              ><span aria-hidden="true">↗</span>
+            </div>
+          </div>
+          <div class="budget-card">
+            <div class="card-heading">
+              <span>Batas pengeluaran</span
+              ><span id="budget-status" class="status-tag">Belum diatur</span>
+            </div>
+            <form id="budget-form" class="budget-form">
+              <label class="sr-only" for="budget-limit"
+                >Batas pengeluaran dalam rupiah</label
+              >
+              <div class="money-input">
+                <span aria-hidden="true">Rp</span
+                ><input
+                  id="budget-limit"
+                  name="budget"
+                  type="number"
+                  min="0"
+                  max="1000000000000"
+                  step="0.01"
+                  placeholder="Atur anggaranmu"
+                  inputmode="decimal"
+                  aria-describedby="budget-help"
+                />
+              </div>
+              <button class="button-secondary" type="submit">Simpan</button>
+            </form>
+            <div class="budget-track" aria-hidden="true">
+              <div id="budget-progress"></div>
+            </div>
+            <p id="budget-help" class="muted">
+              Atur batas untuk memantau semua pengeluaran. Isi 0 atau kosongkan
+              untuk menonaktifkan.
+            </p>
+          </div>
+        </section>
+        <div class="workspace">
+          <section class="panel entry-panel" aria-labelledby="entry-title">
+            <div class="section-heading">
+              <span class="step-label">01 / CATAT</span>
+              <h2 id="entry-title">Tambah pengeluaran</h2>
+              <p>Untuk kopi pagi atau perjalanan pulang.</p>
+            </div>
+            <form id="transaction-form" novalidate>
+              <div class="field">
+                <label for="item-name">Nama transaksi</label
+                ><input
+                  id="item-name"
+                  name="name"
+                  maxlength="80"
+                  placeholder="Contoh: makan siang"
+                  autocomplete="off"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label for="amount"
+                  >Jumlah <span class="muted">(Rp)</span></label
+                ><input
+                  id="amount"
+                  name="amount"
+                  type="number"
+                  min="0.01"
+                  max="1000000000000"
+                  step="0.01"
+                  placeholder="25000"
+                  inputmode="decimal"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label for="category">Kategori</label
+                ><select id="category" name="category" required>
+                  <option value="">Pilih kategori</option>
+                  <option value="Food">Makanan · Food</option>
+                  <option value="Transport">Transportasi · Transport</option>
+                  <option value="Fun">Hiburan · Fun</option>
+                </select>
+              </div>
+              <p id="form-error" class="form-error" role="alert"></p>
+              <button class="button-primary" type="submit">
+                <span>Tambah transaksi</span><span aria-hidden="true">＋</span>
+              </button>
+            </form>
+            <div class="entry-tip">
+              <span aria-hidden="true">✦</span>
+              <p>
+                Pengeluaran tersimpan otomatis.<br />Bisa dilanjutkan saat Anda
+                kembali.
+              </p>
+            </div>
+          </section>
+          <section class="panel chart-panel" aria-labelledby="chart-title">
+            <div class="section-heading">
+              <span class="step-label">02 / PAHAMI</span>
+              <h2 id="chart-title">Distribusi pengeluaran</h2>
+              <p>Gambaran sederhana dari kebiasaanmu.</p>
+            </div>
+            <div class="chart-wrap">
+              <svg
+                id="spending-chart"
+                viewBox="0 0 200 200"
+                role="img"
+                aria-labelledby="chart-description"
+              >
+                <title id="chart-description">Belum ada pengeluaran</title>
+                <circle class="empty-chart" cx="100" cy="100" r="88"></circle>
+              </svg>
+              <div id="chart-empty" class="chart-empty">
+                <strong>Belum ada data</strong
+                ><span>Grafik muncul setelah<br />transaksi pertama.</span>
+              </div>
+            </div>
+            <ul
+              id="chart-legend"
+              class="chart-legend"
+              aria-label="Total dan persentase per kategori"
+            ></ul>
+          </section>
+        </div>
+        <section class="panel history-panel" aria-labelledby="history-title">
+          <div class="history-top">
+            <div>
+              <span class="step-label">03 / TINJAU</span>
+              <h2 id="history-title">Riwayat transaksi</h2>
+            </div>
+            <div class="sort-control">
+              <label for="sort-order">Urutkan</label
+              ><select id="sort-order">
+                <option value="newest">Terbaru</option>
+                <option value="amount-desc">Jumlah terbesar</option>
+                <option value="amount-asc">Jumlah terkecil</option>
+                <option value="category">Kategori</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-heading" aria-hidden="true">
+            <span>TRANSAKSI</span><span>KATEGORI</span><span>JUMLAH</span
+            ><span></span>
+          </div>
+          <ul
+            id="transaction-list"
+            class="transaction-list"
+            aria-label="Daftar transaksi"
+          ></ul>
+          <div id="empty-state" class="empty-state">
+            <div class="empty-symbol" aria-hidden="true">↗</div>
+            <h3>Perjalananmu dimulai di sini.</h3>
+            <p>Tambahkan pengeluaran pertama lewat form di atas.</p>
+            <button id="demo-button" class="button-text" type="button">
+              Lihat dengan data contoh →
+            </button>
+          </div>
+        </section>
+        <p
+          id="app-notice"
+          class="app-notice"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </main>
+      <footer>
+        <span
+          >ruanguang.
+          <span class="muted">· Mini Project RevoU Coding Camp</span></span
+        ><span class="muted">Dibuat oleh Reza Febriadi Rauf</span>
+      </footer>
+    </div>
+  </body>
+</html>
